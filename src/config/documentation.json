@@ -1,0 +1,359 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Pokemon API",
+      "version": "1.0.0",
+      "description": "API permettant de gérer les Pokémons, incluant la consultation, l'ajout, la modification et la suppression."
+    },
+    "servers": [
+      {
+        "url": "http://localhost:3000/api",
+        "description": "Serveur de développement"
+      }
+    ],
+    "paths": {
+      "/pokemons/{id} avec get": {
+        "get": {
+          "summary": "Afficher un Pokémon par ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "L'ID du Pokémon à récupérer",
+              "schema": {
+                "type": "integer",
+                "example": 1
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Succès, Pokémon trouvé",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "nom": "Bulbasaur",
+                    "type_primaire": "Grass",
+                    "type_secondaire": "Poison",
+                    "pv": 45,
+                    "attaque": 49,
+                    "defense": 49
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Pokémon non trouvé",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "erreur": "Pokemon introuvable avec l'id 1245"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Erreur de requête SQL",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "erreur": "Echec lors de la récupération du pokemon avec l'id 1245"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/pokemons/liste": {
+        "get": {
+          "summary": "Afficher la liste paginée des Pokémons",
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Numéro de la page (par défaut 1)",
+              "schema": {
+                "type": "integer",
+                "example": 1
+              }
+            },
+            {
+              "name": "type",
+              "in": "query",
+              "description": "Filtrer par type primaire du Pokémon",
+              "schema": {
+                "type": "string",
+                "example": "grass"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Succès, liste des Pokémons avec pagination",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "pokemons": [
+                      {
+                        "nom": "Bulbasaur",
+                        "type_primaire": "Grass",
+                        "type_secondaire": "Poison",
+                        "pv": 45,
+                        "attaque": 49,
+                        "defense": 49
+                      }
+                    ],
+                    "type": "Grass",
+                    "nombrePokemonTotal": 94,
+                    "page": 2,
+                    "totalPage": 4
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Erreur de requête SQL",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "erreur": "Echec lors de la récupération de la liste des pokemons"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/pokemons": {
+        "post": {
+          "summary": "Ajouter un Pokémon",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pokemon"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Succès, Pokémon ajouté",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "message": "Le pokemon Bulbasaur a été ajouté avec succès",
+                    "pokemon": {
+                      "id": 999,
+                      "nom": "Bulbasaur",
+                      "type_primaire": "Grass",
+                      "type_secondaire": "Poison",
+                      "pv": 45,
+                      "attaque": 49,
+                      "defense": 49
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Erreur de format de données",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "erreur": "Le format des données est invalide",
+                    "champ_manquant": ["pv", "attaque"]
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Erreur de requête SQL",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "erreur": "Echec lors de la création du pokemon Bulbasaur"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/pokemons/{id} avec put": {
+        "put": {
+          "summary": "Modifier un Pokémon par ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID du Pokémon à modifier",
+              "schema": {
+                "type": "integer",
+                "example": 1
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Pokemon"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Succès, Pokémon modifié",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "message": "Le pokemon id 1 a été modifié avec succès",
+                    "pokemon": {
+                      "id": 1,
+                      "nom": "Bulbasaur",
+                      "type_primaire": "Grass",
+                      "type_secondaire": "Poison",
+                      "pv": 45,
+                      "attaque": 49,
+                      "defense": 49
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Erreur de format de données",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "erreur": "Le format des données est invalide",
+                    "champ_manquant": ["pv", "attaque"]
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Pokémon non trouvé",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "erreur": "Le pokemon id 1 n'existe pas dans la base de données"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Erreur de requête SQL",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "erreur": "Echec lors de la modification du pokemon Bulbasaur"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/pokemons/{id} avec delete": {
+        "delete": {
+          "summary": "Supprimer un Pokémon par ID",
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "description": "ID du Pokémon à supprimer",
+              "schema": {
+                "type": "integer",
+                "example": 1
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Succès, Pokémon supprimé",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "message": "Le pokemon id 1 a été supprimé avec succès",
+                    "pokemon": {
+                      "id": 1,
+                      "nom": "Bulbasaur",
+                      "type_primaire": "Grass",
+                      "type_secondaire": "Poison",
+                      "pv": 45,
+                      "attaque": 49,
+                      "defense": 49
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Pokémon non trouvé",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "erreur": "Le pokemon id 1 n'existe pas dans la base de données"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Erreur de requête SQL",
+              "content": {
+                "application/json": {
+                  "example": {
+                    "erreur": "Echec lors de la suppression du pokemon Bulbasaur"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Pokemon": {
+          "type": "object",
+          "properties": {
+            "nom": {
+              "type": "string",
+              "example": "Bulbasaur"
+            },
+            "type_primaire": {
+              "type": "string",
+              "example": "Grass"
+            },
+            "type_secondaire": {
+              "type": "string",
+              "example": "Poison"
+            },
+            "pv": {
+              "type": "integer",
+              "example": 45
+            },
+            "attaque": {
+              "type": "integer",
+              "example": 49
+            },
+            "defense": {
+              "type": "integer",
+              "example": 49
+            }
+          },
+          "required": ["nom", "type_primaire", "pv", "attaque", "defense"]
+        }
+      }
+    }
+  }
+  
